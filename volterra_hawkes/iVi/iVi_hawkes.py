@@ -52,6 +52,7 @@ class IVIHawkesProcess:
     resolvent_flag: bool = False
     g0: Callable = None
     g0_bar_res: Callable = None
+    r_correction: bool = False
 
     def simulate_on_grid(self, t_grid, n_paths):
         """
@@ -77,7 +78,8 @@ class IVIHawkesProcess:
             Instantaneous intensity process of shape (len(t_grid), n_paths).
         """
         ivi = IVIVolterra(is_continuous=False, resolvent_flag=self.resolvent_flag, kernel=self.kernel,
-                          g0_bar=self.g0_bar, g0_bar_res=self.g0_bar_res, rng=self.rng, b=1, c=1, g0=self.g0)
+                  g0_bar=self.g0_bar, g0_bar_res=self.g0_bar_res, rng=self.rng, b=1, c=1, g0=self.g0,
+                  r_correction=self.r_correction)
         U, Z, lam = ivi.simulate_u_z_v(t_grid=t_grid, n_paths=n_paths)
         N = Z + U
         return N, U, lam
