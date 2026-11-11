@@ -76,6 +76,7 @@ class IVIVolterra:
     c: float
     g0_bar_res: Callable = None  # Optional; should be specified to use the resolvent version of the scheme
     g0: Callable = None          # Optional; should be specified if one wants to simulate the instantaneous variance process
+    r_correction: bool = False   # se True, Lambda_i = alpha_i + c_bar * N_i (correzione con E[R])
 
 
     def simulate_u_z(self, t_grid, n_paths):
@@ -129,6 +130,10 @@ class IVIVolterra:
         int_ker_dt = int_kernel(dt)
         if (1 - b_scheme * int_ker_dt) < 0:
             raise ValueError("The denominator (1 - b * K_bar) cannot be negative. Reduce the discretization step.")
+        if self.r_correction and not self.is_continuous:
+            c_bar = ivi_kernel.double_integrated_kernel(dt) / dt
+        else:
+            c_bar = int_ker_dt
 
         if isinstance(ivi_kernel, ConstantKernel) or isinstance(ivi_kernel, ExponentialKernel):
             # Markovian update of alpha.
@@ -174,7 +179,7 @@ class IVIVolterra:
             else:
                 dN_i = self.rng.poisson(lam=d_xi_i, size=n_paths)
                 dZ_i = dN_i - d_xi_i
-                dU_i = (alpha_i + int_ker_dt * c_scheme * dN_i) / (1 + int_ker_dt * (c_scheme - b_scheme))
+                dU_i = (alpha_i + c_bar * c_scheme * dN_i) / (1 + int_ker_dt * (c_scheme - b_scheme))
 
             d_xi[i, :] = d_xi_i
             dZ[i, :] = dZ_i
