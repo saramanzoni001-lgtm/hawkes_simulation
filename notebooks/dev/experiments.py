@@ -83,6 +83,11 @@ def get_N_U_sample(experiment: Experiment, method: str, n_paths: int, rng=None):
                                       resolvent_flag=False, r_correction=True)
         N, U, lam = ivi_hawkes.simulate_on_grid(t_grid=experiment.t_grid, n_paths=n_paths)
         return N.T, U.T
+    elif method in ("iVi G", "iVi RG"):
+        ivi_hawkes = IVIHawkesProcess(kernel=experiment.kernel, g0_bar=experiment.g0_bar, rng=rng, g0=experiment.g0,
+                                      resolvent_flag=False, g_correction=True, r_correction=(method == "iVi RG"))
+        N, U, lam = ivi_hawkes.simulate_on_grid(t_grid=experiment.t_grid, n_paths=n_paths)
+        return N.T, U.T
     elif method == "Res iVi":
         ivi_hawkes_res = IVIHawkesProcess(kernel=experiment.kernel, g0_bar=experiment.g0_bar,
                                           g0_bar_res=experiment.g0_bar_res, rng=rng, g0=experiment.g0,
