@@ -77,7 +77,7 @@ class IVIVolterra:
     g0_bar_res: Callable = None  # Optional; should be specified to use the resolvent version of the scheme
     g0: Callable = None          # Optional; should be specified if one wants to simulate the instantaneous variance process
     r_correction: bool = False   # se True, Lambda_i = alpha_i + c_bar * N_i (correzione con E[R])
-
+    g_correction: bool = False
 
     def simulate_u_z(self, t_grid, n_paths):
         """
@@ -155,6 +155,12 @@ class IVIVolterra:
             int_matrix = int_kernel(t_grid[1:].reshape(-1, 1) - t_grid[:-1].reshape(1, -1)) - \
                          int_kernel(t_grid[:-1].reshape(-1, 1) - t_grid[:-1].reshape(1, -1))  # k_1
             int_matrix = np.tril(int_matrix, k=-1)
+            if self.g_correction and not self.is_continuous:
+                d = ivi_kernel.double_integrated_kernel(dt * np.arange(n_steps + 2))
+                kt = (d[2:] - 2 * d[1:-1] + d[:-2]) / dt      # kt[m-1] = k~_m, m = 1..n_steps
+                idx = np.arange(n_steps)
+                m = idx[:, None] - idx[None, :]
+                int_matrix = np.where(m >= 1, kt[np.clip(m - 1, 0, None)], 0.0)            
 
             def update_alpha(alpha_prev, g0_bar_diff, dZ, dU, d_xi):
                 return g0_bar_diff[i] + c_scheme * int_matrix[i, :] @ dZ + b_scheme * int_matrix[i, :] @ d_xi
