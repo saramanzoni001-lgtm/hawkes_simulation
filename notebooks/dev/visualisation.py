@@ -15,11 +15,13 @@ def get_process_name(mode: str):
     return "$\Lambda_T$" if mode == "U" else "$N_T$"
 
 
-def plot_trajectories(e, n_paths=10, path: str = None, resolvent_flag: bool = False):
+def plot_trajectories(e, n_paths=10, path: str = None, resolvent_flag: bool = False,
+                      g_correction: bool = False, r_correction: bool = False):
     rng = np.random.default_rng(seed=42)
 
     ivi_hawkes = IVIHawkesProcess(kernel=e.kernel, g0_bar=e.g0_bar, g0_bar_res=e.g0_bar_res, rng=rng, g0=e.g0,
-                                  resolvent_flag=resolvent_flag)
+                                  resolvent_flag=resolvent_flag,
+                                  g_correction=g_correction, r_correction=r_correction)
 
     N, U, lam = ivi_hawkes.simulate_on_grid(t_grid=e.t_grid, n_paths=n_paths)
 
