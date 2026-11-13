@@ -122,6 +122,12 @@ def get_arrivals_sample(experiment: Experiment, method: str, n_paths: int, rng=N
         ivi_hawkes = IVIHawkesProcess(kernel=experiment.kernel, g0_bar=experiment.g0_bar, rng=rng, g0=experiment.g0,
                                       resolvent_flag=False)
         return ivi_hawkes.simulate_arrivals(t_grid=experiment.t_grid, n_paths=n_paths)
+    elif method in ("iVi R", "iVi G", "iVi RG"):
+        ivi_hawkes = IVIHawkesProcess(kernel=experiment.kernel, g0_bar=experiment.g0_bar, rng=rng, g0=experiment.g0,
+                                      resolvent_flag=False,
+                                      g_correction=method in ("iVi G", "iVi RG"),
+                                      r_correction=method in ("iVi R", "iVi RG"))
+        return ivi_hawkes.simulate_arrivals(t_grid=experiment.t_grid, n_paths=n_paths)
     elif method == "Res iVi":
         ivi_hawkes_res = IVIHawkesProcess(kernel=experiment.kernel, g0_bar=experiment.g0_bar,
                                           g0_bar_res=experiment.g0_bar_res, rng=rng, g0=experiment.g0,
