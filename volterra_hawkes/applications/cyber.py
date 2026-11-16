@@ -5,7 +5,7 @@ from ..kernel.exponential_kernel import ExponentialKernel
 
 def make_cyber_hawkes(alpha, lam0, xi, beta, seed=42):
     """Hawkes stochastic intensity: lambda_t = alpha + (lam0-alpha)e^{-xi t} + beta * sum e^{-xi (t - tau_i)}."""
-    kernel = ExponentialKernel(c=beta, lam=xi)
+    kernel = GammaKernel(c=beta, lam=xi)
     g0 = lambda t: alpha + (lam0 - alpha) * np.exp(-xi * np.asarray(t))
     g0_bar = lambda t: alpha * np.asarray(t) + (lam0 - alpha) * (1 - np.exp(-xi * np.asarray(t))) / xi
     return IVIHawkesProcess(kernel=kernel, g0_bar=g0_bar, g0=g0, rng=np.random.default_rng(seed))
