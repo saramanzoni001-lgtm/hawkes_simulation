@@ -92,7 +92,6 @@ def plot_marginal_laws(results, samples, flag, path=None):
     if path is not None:
         fig.savefig(fname=path, format="pdf", bbox_inches="tight", transparent=True)
 
-
 def poisson_jumps_test(jumps, path=None,
                        color_cycle=DEFAULT_COLOR_CYCLE,
                        ax: matplotlib.axes = None, fig = None):
@@ -132,7 +131,6 @@ def poisson_jumps_test(jumps, path=None,
 
     return kstest(rvs=data, cdf=lambda x: 1 - np.exp(-x)).pvalue, kstest(rvs=data, cdf=lambda x: 1 - np.exp(-x)).statistic
 
-
 def plot_cf_convergence(results: dict, path_experiment: str, is_log_time: bool = False):
     n_steps_arr = results["n_steps_arr_cf"]
     methods_ivi = results["methods_ivi"]
@@ -142,7 +140,8 @@ def plot_cf_convergence(results: dict, path_experiment: str, is_log_time: bool =
         idx = 1 if mode == "U" else 0
         for method in methods_ivi:
             ax[idx].loglog(n_steps_arr, results["errors_ivi"][mode][method], label=method)
-        ax[idx].hlines(y=3 * results["mc_std_" + mode], xmin=n_steps_arr[0], xmax=n_steps_arr[-1], color="k", linestyles="--", label="3 std")
+        ax[idx].axhline(y=3 * results["mc_std_" + mode], color="k", linestyle="--", label="3 std")
+        ax[idx].set_xlim(n_steps_arr[0], n_steps_arr[-1])
         ax[idx].set_xlabel(r"$\log(n)$")
         process_name = "$\Lambda_T$" if mode == "U" else "$N_T$"
         ax[idx].set_ylabel(r"Absolute error, " + process_name)
