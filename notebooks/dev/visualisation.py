@@ -133,6 +133,13 @@ def poisson_jumps_test(jumps, path=None,
     return kstest(rvs=data, cdf=lambda x: 1 - np.exp(-x)).pvalue, kstest(rvs=data, cdf=lambda x: 1 - np.exp(-x)).statistic
 
 
+STYLES = {
+    "iVi":    dict(marker="o", linestyle="-",  color="#1f77b4"),
+    "iVi R":  dict(marker="s", linestyle="--", color="#ff7f0e"),
+    "iVi G":  dict(marker="^", linestyle="-.", color="#2ca02c"),
+    "iVi RG": dict(marker="D", linestyle=":",  color="#d62728"),
+}
+
 def plot_cf_convergence(results: dict, path_experiment: str, is_log_time: bool = False):
     n_steps_arr = results["n_steps_arr_cf"]
     methods_ivi = results["methods_ivi"]
@@ -141,28 +148,30 @@ def plot_cf_convergence(results: dict, path_experiment: str, is_log_time: bool =
     for mode in ["U", "N"]:
         idx = 1 if mode == "U" else 0
         for method in methods_ivi:
-            ax[idx].loglog(n_steps_arr, results["errors_ivi"][mode][method], label=method)
+            st = STYLES.get(method, dict(marker="o", linestyle="-"))
+            ax[idx].loglog(n_steps_arr, results["errors_ivi"][mode][method], label=method,
+                           markersize=6, **st)
         ax[idx].axhline(y=3 * results["mc_std_" + mode], color="k", linestyle="--", label="3 std")
-        ax[idx].set_xlim(n_steps_arr[0], n_steps_arr[-1])
-        ax[idx].set_xlabel(r"$\log(n)$")
-        process_name = "$\Lambda_T$" if mode == "U" else "$N_T$"
+        ax[idx].set_xlabel(r"$log(n)$")
+        process_name = r"$\Lambda_T$" if mode == "U" else r"$N_T$"
         ax[idx].set_ylabel(r"Absolute error, " + process_name)
         ax[idx].legend()
     fig.savefig(path_experiment + "CF_convergence.pdf", format="pdf", bbox_inches="tight", transparent=True)
 
-
     fig, ax_arr = plt.subplots(1, 2, figsize=(12, 4))
     methods_non_ivi = results["methods_non_ivi"]
-    methods_ivi = results["methods_ivi"]
     for mode in ["U", "N"]:
         idx = 1 if mode == "U" else 0
         ax = ax_arr[idx]
         for method in methods_ivi:
+            st = STYLES.get(method, dict(marker="o", linestyle="-"))
             exec_times = [results["time_" + method + "_" + str(n_steps)] for n_steps in n_steps_arr]
-            ax.scatter(results["errors_ivi"][mode][method], exec_times, marker="x", label=method)
+            ax.scatter(results["errors_ivi"][mode][method], exec_times, marker=st["marker"],
+                       color=st.get("color"), s=40, label=method)
 
-        for method, color in zip(methods_non_ivi, DEFAULT_COLOR_CYCLE[3:]):
-            ax.hlines(y=results["time_" + method], xmin=0, xmax=np.max(results["errors_ivi"][mode]["iVi"]),
+        for method, color in zip(methods_non_ivi, ["#17becf", "#8c564b"]):
+            ax.hlines(y=results["time_" + method], xmin=0,
+                      xmax=np.max([np.max(results["errors_ivi"][mode][m]) for m in methods_ivi]),
                       color=color, label=method)
 
         ymax = max([results["time_" + method] for method in methods_non_ivi])
@@ -170,10 +179,9 @@ def plot_cf_convergence(results: dict, path_experiment: str, is_log_time: bool =
 
         ax.legend()
         if is_log_time:
-            ax.set_yscale('log')
-        ax.set_xscale('log')
-        process_name = "$\Lambda_T$" if mode == "U" else "$N_T$"
-        ax.set_xlabel(f"Absolute error, " + process_name)
+            ax.set_yscale("log")
+        ax.set_xscale("log")
+        process_name = r"$\Lambda_T$" if mode == "U" else r"$N_T$"
+        ax.set_xlabel("Absolute error, " + process_name)
         ax.set_ylabel("Simulations time, s")
-        ax.legend()
     fig.savefig(path_experiment + "CF_convergence_exec_time.pdf", format="pdf", bbox_inches="tight", transparent=True)
