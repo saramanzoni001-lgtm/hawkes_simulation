@@ -175,6 +175,8 @@ def poisson_jumps_test(jumps, path=None,
 #         ax.set_ylabel("Simulations time, s")
 #         ax.legend()
 #     fig.savefig(path_experiment + "CF_convergence_exec_time.pdf", format="pdf", bbox_inches="tight", transparent=True)
+
+# GRAPHS WITH DIFFERENT STYLES
 def plot_cf_convergence(results: dict, path_experiment: str, is_log_time: bool = False):
     n_steps_arr = results["n_steps_arr_cf"]
     methods_ivi = results["methods_ivi"]
@@ -186,7 +188,6 @@ def plot_cf_convergence(results: dict, path_experiment: str, is_log_time: bool =
     style = {m: dict(marker=markers[i % len(markers)], color=colors[i % len(colors)])
              for i, m in enumerate(methods_ivi)}
 
-    # ---------- Errore vs n ----------
     fig, ax = plt.subplots(1, 2, figsize=(12, 4))
     for mode in ["U", "N"]:
         idx = 1 if mode == "U" else 0
@@ -196,13 +197,12 @@ def plot_cf_convergence(results: dict, path_experiment: str, is_log_time: bool =
                            markersize=6, linewidth=1.5)
         ax[idx].axhline(y=3 * results["mc_std_" + mode], color="k", linestyle="--", label="3 std")
         ax[idx].set_xlim(n_steps_arr[0], n_steps_arr[-1])
-        ax[idx].set_xlabel(r"$n$")
+        ax[idx].set_xlabel(r"$n$ (log scale)")
         process_name = r"$\Lambda_T$" if mode == "U" else r"$N_T$"
         ax[idx].set_ylabel(r"Absolute error, " + process_name)
         ax[idx].legend()
     fig.savefig(path_experiment + "CF_convergence.pdf", format="pdf", bbox_inches="tight", transparent=True)
 
-    # ---------- Tempo vs errore ----------
     fig, ax_arr = plt.subplots(1, 2, figsize=(12, 4))
     for mode in ["U", "N"]:
         idx = 1 if mode == "U" else 0
@@ -217,8 +217,7 @@ def plot_cf_convergence(results: dict, path_experiment: str, is_log_time: bool =
             ax.hlines(y=results["time_" + method], xmin=0, xmax=np.max(results["errors_ivi"][mode]["iVi"]),
                       color=color, label=method)
 
-        ymax = max([results["time_" + method] for method in methods_non_ivi])
-        ax.vlines(x=3 * results["mc_std_" + mode], ymin=0, ymax=ymax, color="k", linestyles="--", label="3 std")
+        ax.axvline(x=3 * results["mc_std_" + mode], color="k", linestyle="--", label="3 std")
 
         if is_log_time:
             ax.set_yscale('log')
