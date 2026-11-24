@@ -114,8 +114,8 @@ def poisson_jumps_test(jumps, path=None,
     ax[0].set_ylabel("Empirical Quantiles (Data)")
 
     ax[2].scatter(data_unif[:-1], data_unif[1:], s=10)
-    ax[2].set_xlabel(r"$e^{-\tau_i}$")
-    ax[2].set_ylabel(r"$e^{-\tau_{i+1}}$")
+    ax[2].set_xlabel(r"$U_i = 1 - e^{-\Delta_i}$")
+    ax[2].set_ylabel(r"$U_{i+1} = 1 - e^{-\Delta_{i+1}}$")
 
     x_grid = np.linspace(data.min(), data.max(), num=1000)
     ecdf = sm.distributions.ECDF(data)
